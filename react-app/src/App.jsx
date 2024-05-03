@@ -1,39 +1,27 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
 import "./App.css";
-import Card, { num, Card2 } from "./components/card/Card";
+import Card from "./components/card/Card";
+
+const CACHE = {};
 
 function App() {
-  const [todos, setTodos] = useState(
-    JSON.parse(localStorage.getItem("todos")) || []
-  );
-  const [text, setText] = useState("");
+  const [todos, setTodos] = useState();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setText(value);
-  };
+  async function getData() {
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await res.json();
+    setTodos(data);
+  }
 
-  const handleClick = () => {
-    setTodos((prev) => [...prev, text]);
-    setText("");
-    localStorage.setItem("todos", JSON.stringify(todos));
-  };
-
-  console.log(localStorage.getItem("todos"));
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <>
-      <input onChange={handleChange} name="text1" value={text} />
-
-      <button onClick={handleClick}>add</button>
-
-      <ul>
-        {todos?.map((todo) => (
-          <li>{todo}</li>
-        ))}
-      </ul>
+      {todos?.map((todo) => (
+        <Card title={todo.title} body={todo.body} key={todo.id} />
+      ))}
     </>
   );
 }
